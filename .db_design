@@ -1,1 +1,155 @@
+1. Users Table
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    profile_picture_url VARCHAR(255),
+    user_role ENUM('Admin', 'Member', 'Guest') DEFAULT 'Member',
+    is_email_verified ENUM('0', '1', '2') DEFAULT '0',
+    is_active ENUM('0', '1') DEFAULT '1',
+    created_at TIMESTAMP, 
+    updated_at TIMESTAMP 
+);
 
+2. User Device Detail Table
+CREATE TABLE user_devices (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+
+    device_token VARCHAR(255) NOT NULL UNIQUE,
+    device_name VARCHAR(100),
+
+    device_type ENUM('desktop', 'mobile', 'tablet') NOT NULL,
+    os_name VARCHAR(50),        
+    browser_name VARCHAR(50),   -- Chrome, Firefox, Safari
+    ip_address VARCHAR(45),     -- IPv4 / IPv6
+    country VARCHAR(100),
+    city VARCHAR(100),
+    is_trusted BOOLEAN DEFAULT FALSE,
+    last_login_at TIMESTAMP NULL,
+    created_at TIMESTAMP
+);
+
+3. Teams Table
+CREATE TABLE teams (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    team_name VARCHAR(255) NOT NULL,
+    team_description TEXT,
+    team_logo_url VARCHAR(255),
+    created_by INT,
+    is_deleted ENUM('0', '1') DEFAULT '0',
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+4. Team Members Table
+CREATE TABLE team_members (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    team_id INT,
+    user_id INT,
+    role ENUM('Admin', 'Member') DEFAULT 'Member',
+    is_deleted ENUM('0', '1') DEFAULT '0',
+    joined_at TIMESTAMP
+);
+
+5. Projects Table
+CREATE TABLE projects (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    team_id INT,
+    project_name VARCHAR(255) NOT NULL,
+    project_description TEXT,
+    start_date DATE,
+    end_date DATE,
+    visibility ENUM('public', 'private') DEFAULT 'private',
+    sections TEXT,
+    created_by INT,
+    is_deleted ENUM('0', '1') DEFAULT '0',
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+6. Projects Members Table
+CREATE TABLE project_members (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT,
+    user_id INT,
+    role ENUM('owner', 'editor', 'viewer') DEFAULT 'viewer',
+    created_at TIMESTAMP
+);
+
+7. Tasks Table
+CREATE TABLE tasks (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT,
+    parent_task_id INT,
+    depends_on_task_id INT,
+    section VARCHAR(255) DEFAULT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    tags TEXT,
+    assigned_by INT,
+    assigned_to INT,
+    priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    due_date DATE,
+    status ENUM('pending', 'completed') DEFAULT 'pending',
+    is_deleted ENUM('0', '1') DEFAULT '0',
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+8. Task Comments Table
+CREATE TABLE task_comments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    task_id INT,
+    user_id INT,
+    comment_text TEXT,
+    file_url VARCHAR(255),
+    uploaded_by INT,
+    is_deleted ENUM('0', '1') DEFAULT '0',
+    created_at TIMESTAMP
+);
+
+9. Notifications Table
+CREATE TABLE notifications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    message TEXT,
+    type ENUM('assignment', 'update', 'deadline', 'comment', 'system') DEFAULT 'system',
+    entity_type ENUM('task','project','team'),
+    entity_id INT
+    is_read ENUM('0', '1') DEFAULT '0',
+    created_at TIMESTAMP,
+);
+
+10. Permissions Table
+CREATE TABLE permissions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    entity_type ENUM('team', 'project', 'task'),
+    entity_id INT,
+    user_id INT,
+    permission_type ENUM('view', 'edit', 'delete', 'invite', 'assign') DEFAULT 'view',
+    created_at TIMESTAMP
+);
+
+11. Audit Trail Table
+CREATE TABLE audit_logs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    action_type VARCHAR(255),
+    entity_type ENUM('user', 'team', 'project', 'task', 'subtask'),
+    entity_id INT,
+    action_details TEXT,
+    ip_address VARCHAR(255),
+    created_at TIMESTAMP
+);
+
+12. Exported Data Table
+CREATE TABLE exported_data (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    data_type ENUM('task', 'project', 'team'),
+    export_format ENUM('CSV', 'excel'),
+    export_time TIMESTAMP
+)
